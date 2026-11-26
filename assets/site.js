@@ -2,8 +2,6 @@
   'use strict';
 
   const lessons = new Map(window.articles.map((lesson) => [lesson.slug, lesson]));
-  const youtubeChannel = '';
-  const youtubeSearch = 'https://www.youtube.com/results?search_query=%22Unemployed+Code%22';
 
   const courses = [
     {
@@ -78,16 +76,6 @@
 
   function lessonCount(sequence) {
     return `${sequence.length} lessons`;
-  }
-
-  function updateChannelLinks() {
-    for (const anchor of document.querySelectorAll('[data-channel]')) {
-      anchor.href = youtubeChannel || youtubeSearch;
-      const label = youtubeChannel ? 'Visit YouTube channel' : 'Search on YouTube';
-      const textNode = [...anchor.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
-      if (textNode) textNode.textContent = label;
-      else anchor.append(label);
-    }
   }
 
   function courseCard(course) {
@@ -285,7 +273,6 @@
     main.append(wrap);
   }
 
-  updateChannelLinks();
   const catalog = document.querySelector('[data-course-catalog]');
   if (catalog) catalog.append(...courses.map(courseCard));
   const player = document.querySelector('[data-course]');

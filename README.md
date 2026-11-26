@@ -12,4 +12,4 @@ Add a lesson to `assets/articles.js` with a unique slug, category, title, descri
 
 A course URL looks like `unemployed-code/course.html?course=dsa`; a lesson URL adds `&lesson=arrays`.
 
-Set the lesson’s `videoId` to the 11-character ID of the corresponding YouTube video. An empty ID keeps the video placeholder visible. Set `youtubeChannel` near the top of `assets/site.js` to the channel URL to switch the YouTube search links to the channel.
+Set the lesson’s `videoId` to the 11-character ID of the corresponding YouTube video. An empty ID keeps the video placeholder visible. The YouTube buttons link to the Unemployed Code channel.
