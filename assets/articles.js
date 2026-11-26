@@ -223,4 +223,114 @@ window.articles = [
       },
     ],
   },
+  {
+    slug: "hash-maps",
+    category: "DSA",
+    title: "Hash maps and frequency counts",
+    description: "Choose a key and a value, then use a map to count repeated items in one pass.",
+    minutes: 4,
+    videoId: "",
+    sections: [
+      {
+        heading: "Choose the question you need to answer",
+        paragraphs: [
+          "A map stores a value for each key. Choose the key by asking what you’ll know when you need to look something up. If you know an item and want its count, use the item as the key and store a number. If you want an item’s first position, store its index and only insert it the first time you encounter it.",
+          "A hash map uses a hash of the key to organize its entries. Different keys can share a hash, so the data structure also needs a way to resolve collisions. A typical hash map provides expected constant-time lookups and updates under ordinary conditions.",
+        ],
+      },
+      {
+        heading: "Build a frequency table",
+        paragraphs: [
+          "Read each item and increase its count by one. A lookup for a missing key in JavaScript’s Map returns undefined. Use zero as the starting count and keep the map as the result so callers can look up any item directly.",
+        ],
+        code: `function frequencies(items) {
+  const counts = new Map();
+
+  for (const item of items) {
+    const count = counts.get(item) ?? 0;
+    counts.set(item, count + 1);
+  }
+
+  return counts;
+}`,
+      },
+      {
+        heading: "Account for distinct keys",
+        paragraphs: [
+          "For [4, 1, 4, 7, 1, 4], the final counts are 3 for 4, 2 for 1, and 1 for 7. The map stores one entry for each distinct item. With n inputs and d distinct items, the algorithm takes O(n) expected time and O(d) space under conventional hash-map assumptions.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "best-time-to-buy-and-sell-stock",
+    problemUrl: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+    category: "LeetCode",
+    title: "Best Time to Buy and Sell Stock",
+    description: "Track the lowest earlier price to find the best single trade in one scan.",
+    minutes: 4,
+    videoId: "",
+    sections: [
+      {
+        heading: "Fix the sale day",
+        paragraphs: [
+          "You can make one trade with the buy day strictly before the sell day. For any particular sell day, the largest profit comes from the cheapest price on an earlier day. If no trade makes money, return zero.",
+          "Consider [8, 4, 6, 2, 7]. Selling at 6 gives a profit of 2 using the earlier price of 4. After the price drops to 2, selling at 7 gives a profit of 5. The earlier drop from 8 to 2 cannot produce a profit because the sale must follow the purchase.",
+        ],
+      },
+      {
+        heading: "Maintain the cheapest earlier price",
+        paragraphs: [
+          "Start evaluating sales on the second day. Before each iteration, cheapest holds the smallest price before that day. Compute the profit for today’s sale first, then update cheapest so today’s price is available on later days.",
+        ],
+        code: `function maxProfit(prices) {
+  let cheapest = prices[0];
+  let best = 0;
+
+  for (let day = 1; day < prices.length; day++) {
+    const price = prices[day];
+    best = Math.max(best, price - cheapest);
+    cheapest = Math.min(cheapest, price);
+  }
+
+  return best;
+}`,
+      },
+      {
+        heading: "Check the no-trade cases",
+        paragraphs: [
+          "A single day gives the loop no possible sale, so it returns zero. With falling or flat prices, every candidate profit is zero or less, and best stays zero. The loop checks the best trade for each possible sell day in O(n) time and O(1) extra space.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "mock-interview",
+    category: "Interviews",
+    title: "Run a mock coding interview",
+    description: "Rehearse a full interview with one problem, timed checkpoints, and feedback you can act on.",
+    minutes: 4,
+    videoId: "",
+    sections: [
+      {
+        heading: "Use one problem for the whole session",
+        paragraphs: [
+          "Try this prompt with a partner or record yourself. Given an array of integers, return the first value you encounter for the second time while scanning left to right. Clarify the result for an array without duplicates. For [5, 2, 5, 2], the answer is 5.",
+          "Spend the first five minutes clarifying the prompt and tracing a small input. Use the next five to describe a baseline and choose an approach. Reserve about fifteen minutes to code and the remaining five to test and explain complexity.",
+        ],
+      },
+      {
+        heading: "Review the evidence from your run",
+        paragraphs: [
+          "Ask your partner to point to a specific moment when your explanation made the solution easier or harder to follow. If you recorded yourself, listen for when you stated the scanning order and what your data structure remembers.",
+          "One solution uses a set of values already encountered. Ask whether the set contains the current value before adding it. Trace [8, 9, 9, 8] to check that the program returns 9, and trace a single-item input to see what happens when nothing repeats.",
+        ],
+        list: [
+          "Did I settle what to return for an input with no repeat?",
+          "Did I explain why scanning left to right matters?",
+          "Did I test a case where the repeated value isn’t the first item?",
+        ],
+      },
+    ],
+  },
 ];

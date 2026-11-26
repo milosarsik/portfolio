@@ -1,18 +1,57 @@
 (() => {
   'use strict';
 
-  const articles = window.articles;
+  const lessons = new Map(window.articles.map((lesson) => [lesson.slug, lesson]));
   const youtubeChannel = '';
   const youtubeSearch = 'https://www.youtube.com/results?search_query=%22Unemployed+Code%22';
-  const categoryClasses = { DSA: 'dsa', LeetCode: 'leetcode', Interviews: 'interviews' };
-  const cardMotifs = {
-    arrays: [['[', 'plain'], ['4'], ['8'], ['15', 'filled'], ['16'], [']', 'plain']],
-    'two-sum': [['2'], ['+', 'plain'], ['7'], ['=', 'plain'], ['9', 'filled']],
-    'think-out-loud': [['before I code…', 'phrase']],
-    stacks: [['push'], ['top', 'filled'], ['pop']],
-    'valid-parentheses': [['('], ['['], [']'], [')', 'filled']],
-    'practice-with-intent': [['solve'], ['review', 'filled'], ['retry']],
-  };
+
+  const courses = [
+    {
+      slug: 'dsa',
+      title: 'DSA',
+      symbol: 'A[i]',
+      description: 'Build a working understanding of arrays, hash maps, and stacks. Learn when each structure makes a problem easier to solve.',
+      outcomes: [
+        'Use array indices and a sliding window to reuse work.',
+        'Recognize when a hash map can replace a repeated scan.',
+        'Use a stack to resolve work in reverse order.',
+      ],
+      modules: [
+        { title: 'Arrays and lookup', lessons: ['arrays', 'hash-maps'] },
+        { title: 'Linear structures', lessons: ['stacks'] },
+      ],
+    },
+    {
+      slug: 'leetcode',
+      title: 'LeetCode',
+      symbol: '2 + 7 = 9',
+      description: 'Work through three LeetCode problems from a first example to a tested JavaScript solution.',
+      outcomes: [
+        'Find a pair in one pass by tracking complements.',
+        'Track a running minimum while scanning prices.',
+        'Use a stack to match nested brackets in order.',
+      ],
+      modules: [
+        { title: 'Array problems', lessons: ['two-sum', 'best-time-to-buy-and-sell-stock'] },
+        { title: 'Stack problems', lessons: ['valid-parentheses'] },
+      ],
+    },
+    {
+      slug: 'interviews',
+      title: 'Interviews',
+      symbol: '>_',
+      description: 'Practice explaining decisions, reviewing your problem-solving, and running a mock technical interview.',
+      outcomes: [
+        'Communicate constraints, tradeoffs, and a dry run.',
+        'Use a focused review to guide your next practice session.',
+        'Run a mock interview with a timed prompt and a debrief.',
+      ],
+      modules: [
+        { title: 'During the interview', lessons: ['think-out-loud'] },
+        { title: 'Practice and review', lessons: ['practice-with-intent', 'mock-interview'] },
+      ],
+    },
+  ];
 
   function element(tag, className, content) {
     const node = document.createElement(tag);
@@ -27,8 +66,18 @@
     return anchor;
   }
 
-  function postLink(prefix, article) {
-    return `${prefix}post.html?slug=${encodeURIComponent(article.slug)}`;
+  function courseUrl(course, lesson) {
+    const params = new URLSearchParams({ course: course.slug });
+    if (lesson) params.set('lesson', lesson.slug);
+    return `./course.html?${params}`;
+  }
+
+  function courseLessons(course) {
+    return course.modules.flatMap((module) => module.lessons.map((slug) => lessons.get(slug)));
+  }
+
+  function lessonCount(sequence) {
+    return `${sequence.length} lessons`;
   }
 
   function updateChannelLinks() {
@@ -41,104 +90,51 @@
     }
   }
 
-  function metadata(article, className) {
-    const meta = element('div', className);
-    meta.append(
-      element('span', `topic ${categoryClasses[article.category]}`, article.category),
-      element('span', 'read-time', `${article.minutes} min read`),
+  function courseCard(course) {
+    const card = link('course-card', undefined, courseUrl(course));
+    const art = element('div', `course-card-art ${course.slug}`);
+    art.setAttribute('aria-hidden', 'true');
+    art.append(element('span', '', course.symbol));
+    const copy = element('div', 'course-card-copy');
+    copy.append(
+      element('p', 'course-card-meta', lessonCount(courseLessons(course))),
+      element('h3', '', course.title),
+      element('p', '', course.description),
+      element('span', 'course-card-action', 'View course'),
     );
-    return meta;
-  }
-
-  function postCard(article, prefix) {
-    const card = link('post-card', undefined, postLink(prefix, article));
-    card.setAttribute('aria-label', `${article.title}, ${article.category}, ${article.minutes} min read`);
-    const cover = element('div', `card-cover ${categoryClasses[article.category]}`);
-    cover.setAttribute('aria-hidden', 'true');
-    const motif = element('div', 'card-motif');
-    for (const [text, style] of cardMotifs[article.slug] || [[article.category, 'phrase']]) {
-      motif.append(element('span', style, text));
-    }
-    cover.append(motif);
-    const content = element('div', 'card-copy');
-    content.append(
-      metadata(article, 'card-meta'),
-      element('h3', '', article.title),
-      element('p', '', article.description),
-      element('span', 'card-action', 'Read editorial'),
-    );
-    card.append(cover, content);
+    card.append(art, copy);
     return card;
   }
 
-  function renderLibrary(grid) {
-    const tools = document.querySelector('[data-library-tools]');
-    const filters = [...tools.querySelectorAll('[data-category]')];
-    const search = tools.querySelector('[data-search]');
-    const count = document.querySelector('[data-count]');
-    const empty = document.querySelector('[data-empty]');
-    const clear = document.querySelector('[data-clear]');
-    let category = '';
+  function courseSidebar(course, activeLesson) {
+    const sidebar = element('nav', 'course-sidebar');
+    sidebar.setAttribute('aria-label', `${course.title} course contents`);
 
-    function readLocation() {
-      const params = new URLSearchParams(window.location.search);
-      const value = params.get('category');
-      category = Object.hasOwn(categoryClasses, value) ? value : '';
-      search.value = params.get('q') || '';
-    }
+    const title = element('h2', 'course-sidebar-title');
+    const courseHome = link('', course.title, courseUrl(course));
+    if (!activeLesson) courseHome.setAttribute('aria-current', 'page');
+    title.append(courseHome);
+    sidebar.append(title, element('p', 'course-sidebar-meta', lessonCount(courseLessons(course))));
 
-    function render() {
-      const query = search.value.trim().toLowerCase();
-      const results = articles.filter((article) => {
-        const headings = article.sections.map((section) => section.heading);
-        const haystack = [article.title, article.category, article.description, ...headings].join(' ').toLowerCase();
-        return (!category || article.category === category) && query.split(/\s+/).every((term) => haystack.includes(term));
-      });
+    course.modules.forEach((module, index) => {
+      const dropdown = element('details', 'course-module');
+      dropdown.open = activeLesson ? module.lessons.includes(activeLesson.slug) : index === 0;
+      dropdown.append(element('summary', '', module.title));
 
-      grid.replaceChildren(...results.map((article) => postCard(article, './')));
-      empty.hidden = results.length > 0;
-      count.textContent = `${results.length} ${results.length === 1 ? 'post' : 'posts'}`;
-      for (const filter of filters) {
-        filter.setAttribute('aria-pressed', String(filter.dataset.category === category));
+      const list = element('ol');
+      for (const slug of module.lessons) {
+        const lesson = lessons.get(slug);
+        const item = element('li');
+        const lessonLink = link('course-lesson-link', lesson.title, courseUrl(course, lesson));
+        if (activeLesson === lesson) lessonLink.setAttribute('aria-current', 'page');
+        item.append(lessonLink);
+        list.append(item);
       }
-    }
-
-    function updateLocation() {
-      const url = new URL(window.location.href);
-      const values = { category, q: search.value.trim() };
-      for (const [key, value] of Object.entries(values)) {
-        if (value) url.searchParams.set(key, value);
-        else url.searchParams.delete(key);
-      }
-      history.replaceState(null, '', url);
-    }
-
-    function applyFilters() {
-      updateLocation();
-      render();
-    }
-
-    for (const filter of filters) {
-      filter.addEventListener('click', () => {
-        category = filter.dataset.category;
-        applyFilters();
-      });
-    }
-    search.addEventListener('input', applyFilters);
-    clear.addEventListener('click', () => {
-      category = '';
-      search.value = '';
-      applyFilters();
-      search.focus();
-    });
-    window.addEventListener('popstate', () => {
-      readLocation();
-      render();
+      dropdown.append(list);
+      sidebar.append(dropdown);
     });
 
-    readLocation();
-    render();
-    tools.hidden = false;
+    return sidebar;
   }
 
   function codeSnippet(text) {
@@ -169,14 +165,13 @@
     return block;
   }
 
-  function videoSection(article) {
+  function videoSection(lesson) {
     const section = element('section', 'video-section');
-    section.id = 'video';
     section.append(element('h2', 'video-heading', 'Video walkthrough'));
-    if (/^[\w-]{11}$/.test(article.videoId)) {
+    if (/^[\w-]{11}$/.test(lesson.videoId)) {
       const iframe = element('iframe', 'video-frame');
-      iframe.src = `https://www.youtube-nocookie.com/embed/${article.videoId}`;
-      iframe.title = `${article.title} video walkthrough`;
+      iframe.src = `https://www.youtube-nocookie.com/embed/${lesson.videoId}`;
+      iframe.title = `${lesson.title} video walkthrough`;
       iframe.loading = 'lazy';
       iframe.referrerPolicy = 'strict-origin-when-cross-origin';
       iframe.allow = 'accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share';
@@ -192,42 +187,62 @@
     return section;
   }
 
-  function renderPost(main) {
-    const slug = new URLSearchParams(window.location.search).get('slug');
-    const article = articles.find((entry) => entry.slug === slug);
-    if (!article) {
-      document.title = 'Post unavailable · Unemployed Code';
-      const missing = element('div', 'wrap missing-post');
-      missing.append(element('h1', '', 'Post unavailable'), element('p', '', 'You can find the published editorials in the library.'), link('back-link', 'Browse the library', './'));
-      main.append(missing);
-      return;
-    }
-
-    document.title = `${article.title} · Unemployed Code`;
-    document.querySelector('meta[name="description"]').content = article.description;
-
-    const top = element('header', 'post-hero');
-    const header = element('div', 'wrap');
-    const library = `./?category=${encodeURIComponent(article.category)}`;
+  function courseOverview(course, sequence) {
+    const content = element('div', 'course-content');
+    const header = element('header', 'course-intro');
+    const body = element('section', 'course-lesson-body post-section');
+    const totalMinutes = sequence.reduce((total, lesson) => total + lesson.minutes, 0);
     header.append(
-      link('back-link', 'Back to the library', library),
-      metadata(article, 'post-meta'),
-      element('h1', '', article.title),
-      element('p', '', article.description),
+      element('p', 'eyebrow', `${lessonCount(sequence)} · ${totalMinutes} min reading`),
+      element('h1', '', course.title),
+      element('p', '', course.description),
+      link('button button-light', 'Start course', courseUrl(course, sequence[0])),
     );
-    if (article.problemUrl) header.append(link('back-link problem-link', 'View problem on LeetCode', article.problemUrl));
-    top.append(header);
+    const outcomes = element('ul');
+    outcomes.append(...course.outcomes.map((outcome) => element('li', '', outcome)));
+    body.append(element('h2', '', 'What you’ll learn'), outcomes);
+    content.append(header, body);
+    return content;
+  }
 
-    const layout = element('div', 'wrap post-layout');
-    const body = element('article', 'post-body');
-    const table = element('nav', 'toc');
-    table.setAttribute('aria-label', 'On this page');
-    table.append(element('h2', '', 'On this page'), link('', 'Video walkthrough', '#video'));
-    body.append(videoSection(article));
+  function sequenceNavigation(course, sequence, index) {
+    const nav = element('nav', 'lesson-pagination');
+    nav.setAttribute('aria-label', 'Lesson sequence');
+    const previous = sequence[index - 1];
+    const next = sequence[index + 1];
+    if (previous) {
+      const button = link('button button-outline', `Previous: ${previous.title}`, courseUrl(course, previous));
+      button.rel = 'prev';
+      nav.append(button);
+    } else {
+      nav.append(link('button button-outline', 'Course overview', courseUrl(course)));
+    }
+    if (next) {
+      const button = link('button button-light', `Next: ${next.title}`, courseUrl(course, next));
+      button.rel = 'next';
+      nav.append(button);
+    } else {
+      nav.append(link('button button-light', 'All courses', './'));
+    }
+    return nav;
+  }
 
-    article.sections.forEach((section, index) => {
+  function renderLesson(course, lesson, sequence) {
+    const content = element('article', 'course-content');
+    const header = element('header', 'course-intro');
+    const index = sequence.indexOf(lesson);
+
+    header.append(
+      element('p', 'eyebrow', `Lesson ${index + 1} of ${sequence.length} · ${lesson.minutes} min read`),
+      element('h1', '', lesson.title),
+      element('p', '', lesson.description),
+    );
+    if (lesson.problemUrl) header.append(link('back-link problem-link', 'View problem on LeetCode', lesson.problemUrl));
+
+    const body = element('div', 'course-lesson-body');
+    body.append(videoSection(lesson));
+    for (const section of lesson.sections) {
       const block = element('section', 'post-section');
-      block.id = `section-${index + 1}`;
       block.append(element('h2', '', section.heading));
       for (const paragraph of section.paragraphs || []) {
         block.append(element('p', '', paragraph));
@@ -238,23 +253,41 @@
         block.append(list);
       }
       if (section.code) block.append(codeSnippet(section.code));
-      table.append(link('', section.heading, `#${block.id}`));
       body.append(block);
-    });
+    }
+    content.append(header, body, sequenceNavigation(course, sequence, index));
+    return content;
+  }
 
-    const end = element('div', 'post-end');
-    end.append(link('back-link', `More ${article.category === 'Interviews' ? 'interview' : article.category} posts`, library));
-    body.append(end);
-    layout.append(body, table);
-    main.append(top, layout);
+  function renderCourse(main) {
+    const params = new URLSearchParams(window.location.search);
+    const course = courses.find((entry) => entry.slug === params.get('course'));
+    const lessonSlug = params.get('lesson');
+    const sequence = course ? courseLessons(course) : [];
+    const lesson = sequence.find((entry) => entry.slug === lessonSlug);
 
-    const fragment = window.location.hash.slice(1);
-    if (fragment) document.getElementById(fragment)?.scrollIntoView();
+    if (!course || (lessonSlug && !lesson)) {
+      document.title = 'Course unavailable · Unemployed Code';
+      const missing = element('div', 'wrap missing-post');
+      missing.append(
+        element('h1', '', course ? 'Lesson unavailable' : 'Course unavailable'),
+        link('back-link', course ? `Open ${course.title}` : 'View all courses', course ? courseUrl(course) : './'),
+      );
+      main.append(missing);
+      return;
+    }
+
+    const current = lesson || course;
+    document.title = `${current.title} · Unemployed Code`;
+    document.querySelector('meta[name="description"]').content = current.description;
+    const wrap = element('div', 'wrap course-shell');
+    wrap.append(courseSidebar(course, lesson), lesson ? renderLesson(course, lesson, sequence) : courseOverview(course, sequence));
+    main.append(wrap);
   }
 
   updateChannelLinks();
-  const library = document.querySelector('[data-library]');
-  if (library) renderLibrary(library);
-  const main = document.querySelector('[data-article]');
-  if (main) renderPost(main);
+  const catalog = document.querySelector('[data-course-catalog]');
+  if (catalog) catalog.append(...courses.map(courseCard));
+  const player = document.querySelector('[data-course]');
+  if (player) renderCourse(player);
 })();

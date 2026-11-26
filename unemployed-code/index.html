@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101017">
-  <meta name="description" content="Explore Unemployed Code by Milos Arsik. Read practical notes on data structures, LeetCode problems, and technical interviews.">
+  <meta name="description" content="Explore Unemployed Code by Milos Arsik. Take courses in data structures and algorithms, LeetCode, and technical interviews.">
   <title>Unemployed Code · Milos Arsik</title>
   <link rel="icon" href="../assets/uc-avatar.webp" type="image/webp">
   <link rel="stylesheet" href="../assets/site.css">
@@ -18,7 +18,7 @@
     <div class="wrap header-inner">
       <a class="brand" href="./"><img class="brand-mark" src="../assets/uc-avatar.webp" width="40" height="40" alt=""><span>Unemployed Code</span></a>
       <nav class="site-nav" aria-label="Unemployed Code">
-        <a href="./" aria-current="page">Library</a>
+        <a href="./" aria-current="page">Courses</a>
         <a href="../">Portfolio</a>
       </nav>
     </div>
@@ -29,7 +29,7 @@
       <div class="wrap library-lead">
         <div>
           <h1 id="library-title">Unemployed<br><span>Code.</span></h1>
-          <p>Written walkthroughs for data structures, LeetCode problems, and technical interviews.</p>
+          <p>Courses in data structures and algorithms, LeetCode, and technical interviews.</p>
           <a class="button button-light" data-channel href="https://www.youtube.com/results?search_query=%22Unemployed+Code%22"><span class="play-icon" aria-hidden="true"></span>Search on YouTube</a>
         </div>
         <div class="library-art" aria-hidden="true">
@@ -37,29 +37,10 @@
         </div>
       </div>
     </section>
-    <section class="wrap library-content" aria-labelledby="browse-title">
-      <div class="section-head">
-        <div>
-          <h2 id="browse-title">Browse posts</h2>
-        </div>
-      </div>
-      <div class="library-tools" data-library-tools hidden>
-        <div class="filters" role="group" aria-label="Filter posts by category">
-          <button type="button" data-category="" aria-pressed="true">All posts</button>
-          <button type="button" data-category="DSA" aria-pressed="false">DSA</button>
-          <button type="button" data-category="LeetCode" aria-pressed="false">LeetCode</button>
-          <button type="button" data-category="Interviews" aria-pressed="false">Interviews</button>
-        </div>
-        <label class="search-field">
-          <span class="sr-only">Search posts</span>
-          <span class="search-icon" aria-hidden="true"></span>
-          <input type="search" placeholder="Search posts" data-search>
-        </label>
-      </div>
-      <p class="result-count" role="status" data-count></p>
-      <div class="card-grid" data-library></div>
-      <p class="empty-state" data-empty hidden>No posts match your search. <button class="text-button" type="button" data-clear>Clear filters</button></p>
-      <noscript><p>Enable JavaScript to browse the editorials.</p></noscript>
+    <section class="wrap library-content" aria-labelledby="courses-title">
+      <div class="section-head"><h2 id="courses-title">Courses</h2></div>
+      <div class="course-grid" data-course-catalog></div>
+      <noscript><p>Enable JavaScript to browse the courses.</p></noscript>
     </section>
   </main>
 
